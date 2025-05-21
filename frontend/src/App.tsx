@@ -1,9 +1,9 @@
-import SiteRouter from "./routes/Routes"
+import Layout from "./components/Layout"
 
 const App = () => {
   return (
     <>
-    <SiteRouter/>
+    <Layout/>
     </>
   )
 }
