@@ -8,18 +8,18 @@ export const findUserByEmail = async (email) => {
     return user[0];
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Error interno del servidor" });
+    throw error
   }
 };
 
-export const createUser = async (email, hashedPassword, name, image) => {
+export const createUser = async (validEmail, name, hashedPassword, image) => {
   const query =
     "INSERT INTO users (name, email, password, image_url) VALUES ($1, $2, $3, $4) RETURNING *";
 
   try {
-    const res = await pool.query(query, [email, hashedPassword, name, image]);
+    const res = await pool.query(query, [validEmail, name, hashedPassword, image]);
     return res.rows[0];
   } catch (error) {
-    return res.status(500).json({ message: "Error interno del servidor" });
+    throw error
   }
 };

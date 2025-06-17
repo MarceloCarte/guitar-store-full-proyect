@@ -10,7 +10,7 @@ export const getAllProducts = async () => {
   }
 };
 
-export const getProduct = async (id) => {
+export const findProductById = async (id) => {
   const query = "SELECT * FROM products WHERE id = $1";
 
   try {
@@ -20,20 +20,14 @@ export const getProduct = async (id) => {
     }
     return rows[0];
   } catch (error) {
-    console.error('Error interno del servidor', error);
+    console.error("Error interno del servidor", error);
   }
 };
 
-export const postProduct = async (
-  name,
-  price,
-  stock,
-  type,
-  condition,
-  description,
-  image
-) => {
-  const values = [name, price, stock, type, condition, description, image];
+export const createProduct = async (data) => {
+  const { name, price_clp, stock, type, condition, description, image_url } =
+    data;
+  const values = [name, price_clp, stock, type, condition, description, image_url];
   const query =
     "INSERT INTO products (id, name, price_clp, stock, type, condition, description, image_url) VALUES (DEFAULT, $1, $2, $3, $4, $5, $6, $7) RETURNING *";
 
@@ -41,6 +35,6 @@ export const postProduct = async (
     const { rows } = await pool.query(query, values);
     return rows[0];
   } catch (error) {
-    console.error('Error interno del servidor', error);
+    console.error("Error interno del servidor", error);
   }
 };

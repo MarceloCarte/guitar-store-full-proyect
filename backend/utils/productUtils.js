@@ -1,4 +1,4 @@
-const allowedTypes = ['electrica', 'nylon', 'acústica', 'electroacústica'];
+const allowedTypes = ['electrica', 'nylon', 'acustica', 'electroacustica'];
 const allowedConditions = ['nueva', 'usada'];
 
 export const validateProduct = (data) => {
@@ -8,7 +8,7 @@ export const validateProduct = (data) => {
     errors.push('Nombre del producto debe ser tipo "string".');
   }
 
-  if (typeof data.price !== 'number' || data.price < 0) {
+  if (typeof data.price_clp !== 'number' || data.price_clp < 0) {
     errors.push('Precio del producto debe ser mayor a 0.');
   }
 
@@ -29,4 +29,21 @@ export const validateProduct = (data) => {
 
 export const clpFormater = (value) => {
     return value.toLocaleString('es-CL')
+}
+
+export const prepHateoas = (productos) => {
+  const res = productos.map((p) => {
+    return {
+      name: p.name,
+      href: `/store/products/item/${p.id}`
+    }
+  }).slice(0, 4)
+
+  const total = productos.length
+  const HATEOAS = {
+    total,
+    res
+  }
+
+  return HATEOAS
 }

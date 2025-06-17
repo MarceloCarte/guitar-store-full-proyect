@@ -9,3 +9,5 @@ cartRouter.post('/cart', (req, res) => res.send('Add product'))
 cartRouter.get('/cart', (req, res) => res.send('Get whole cart'))
 
 //
+
+export default cartRouter
