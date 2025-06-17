@@ -1,35 +1,25 @@
-import mongoose from "mongoose";
+import { pool } from "../db/db.js";
 
-const userSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, "User Name is required"],
-      trim: true,
-      minLength: 2,
-      maxLength: 50,
-    },
-    email: {
-      type: String,
-      required: [true, "User Email is required"],
-      unique: true,
-      trim: true,
-      lowercase: true,
-      match: [
-        /^([w.-]+@([\w-]+\.)+[\w-]{2,4})?$/,
-        "Please fill a valid email address",
-      ],
-    },
-    password: {
-      type: String,
-      required: [true, "User Password is required"],
-      minLength: 6,
-      maxLength: 100,
-    },
-  },
-  { timestamps: true }
-);
+export const findUserByEmail = async (email) => {
+  const query = "SELECT * FROM users WHERE email = $1";
 
-const User = mongoose.model('User', userSchema)
+  try {
+    const { rows: user } = await pool.query(query, [email]);
+    return user[0];
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error interno del servidor" });
+  }
+};
 
-export default User
+export const createUser = async (email, hashedPassword, name, image) => {
+  const query =
+    "INSERT INTO users (name, email, password, image_url) VALUES ($1, $2, $3, $4) RETURNING *";
+
+  try {
+    const res = await pool.query(query, [email, hashedPassword, name, image]);
+    return res.rows[0];
+  } catch (error) {
+    return res.status(500).json({ message: "Error interno del servidor" });
+  }
+};

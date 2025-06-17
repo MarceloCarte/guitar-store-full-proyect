@@ -1,20 +1,15 @@
 import e from "express";
-import { PORT } from "./config/env.js";
-import errorMiddleware from "./middleware/error.middleware.js";
-import userRouter from "./routes/user.routes.js";
-import authRouter from "./routes/auth.routes.js";
-import connectToDB from "./db/mongoosedb.js";
+import cors from 'cors'
+import dotenv from 'dotenv'
+import productRoutes from "./routes/product.routes.js";
+dotenv.config()
 
-const app = e();
+const PORT = process.env.PORT
+const app = e()
 
-app.use(e.json());
+app.use(e.json())
+app.use(cors())
 
-app.use("/api", userRouter());
-app.use("/api", authRouter());
+app.use('/store', productRoutes)
 
-app.use(errorMiddleware);
-
-app.listen(PORT, async () => {
-  console.log(`Server running on port http://localhost:${PORT}`);
-  await connectToDB();
-});
+app.listen(PORT, () => console.log(`Server running on PORT http://localhost:${PORT}`))
