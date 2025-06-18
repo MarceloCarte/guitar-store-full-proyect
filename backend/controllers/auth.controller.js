@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { nanoid } from "nanoid";
 import { createUser, findUserByEmail } from "../models/user.model.js";
 import { validateEmail } from "../utils/userUtils.js";
 
@@ -8,8 +9,18 @@ import { validateEmail } from "../utils/userUtils.js";
 export const signUp = async (req, res) => {
   const { email, password, name, image } = req.body;
 
+  if (!email.trim() || !password.trim()) {
+    return res.status(400).json({ error: "Se requiere email y password." });
+  }
+
   if (!email || !validateEmail(email)) {
     return res.status(400).json({ message: "Email inválido." });
+  }
+
+  if (password.length < 6) {
+    return res
+      .status(400)
+      .json({ error: "Password debe contener al menos 6 caracteres." });
   }
 
   try {
@@ -20,20 +31,29 @@ export const signUp = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await createUser(cleanEmail, name, hashedPassword, image);
+    const newUser = {
+      id: nanoid(),
+      email: cleanEmail,
+      password: hashedPassword,
+      name,
+      image,
+    };
+    await createUser(newUser);
 
     return res.status(201).json({
       message: "Usuario creado con éxito.",
       user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        image: user.image_url,
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        image: newUser.image_url,
       },
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Error interno del servidor." });
+    return res
+      .status(500)
+      .json({ message: "Error interno del servidor.", error: error });
   }
 };
 
@@ -79,4 +99,8 @@ export const login = async (req, res) => {
     console.error(error);
     return res.status(500).json({ message: "Error interno del servidor." });
   }
+};
+
+export const logout = (req, res) => {
+  return res.status(200).json({ message: "Logout exitoso. Token eliminado." });
 };
