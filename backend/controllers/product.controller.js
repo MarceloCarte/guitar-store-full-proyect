@@ -24,7 +24,7 @@ export const getProduct = async (req, res) => {
     const producto = await findProductById(id);
 
     if (!producto)
-     return res.status(404).json({ message: "Producto no existe." });
+      return res.status(404).json({ message: "Producto no existe." });
 
     return res.status(200).json(producto);
   } catch (error) {
@@ -34,14 +34,23 @@ export const getProduct = async (req, res) => {
 };
 
 export const newProduct = async (req, res) => {
-  const data = req.body;
-    
-  const errors = validateProduct(data);
+  const data = {
+    ...req.body,
+    price_clp: Number(req.body.price_clp),
+    stock: Number(req.body.stock),
+    image_url: req.file
+      ? `/uploads/${req.file.filename}`
+      : req.body.image?.startsWith("http")
+      ? req.body.image
+      : null,
+  };
+
+    const errors = validateProduct(data);
   if (errors.length > 0) return res.status(400).json({ errors });
 
   try {
     const product = await createProduct(data);
-    
+
     return res.status(200).json({
       message: "Producto creado con éxito",
       product: {
@@ -56,8 +65,7 @@ export const newProduct = async (req, res) => {
       },
     });
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ message: 'Error al crear el producto.' });
   }
 };
-
-

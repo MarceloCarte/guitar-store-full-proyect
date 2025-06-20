@@ -7,7 +7,8 @@ import { validateEmail } from "../utils/userUtils.js";
 // {email: '', password: '', name: '', image: ''}
 
 export const signUp = async (req, res) => {
-  const { email, password, name, image } = req.body;
+  const { email, password, name, image: imageUrl } = req.body;
+  const fileImage = req.file;
 
   if (!email.trim() || !password.trim()) {
     return res.status(400).json({ error: "Se requiere email y password." });
@@ -23,6 +24,14 @@ export const signUp = async (req, res) => {
       .json({ error: "Password debe contener al menos 6 caracteres." });
   }
 
+  let imagePath = null;
+
+  if (fileImage) {
+    imagePath = `/uploads/${fileImage.filename}`;
+  } else if (imageUrl?.startsWith("http")) {
+    imagePath = imageUrl;
+  }
+
   try {
     const cleanEmail = email.toLowerCase().trim();
     const existingUser = await findUserByEmail(cleanEmail);
@@ -36,7 +45,7 @@ export const signUp = async (req, res) => {
       email: cleanEmail,
       password: hashedPassword,
       name,
-      image,
+      image: imagePath
     };
     await createUser(newUser);
 
@@ -46,7 +55,7 @@ export const signUp = async (req, res) => {
         id: newUser.id,
         name: newUser.name,
         email: newUser.email,
-        image: newUser.image_url,
+        image: newUser.image,
       },
     });
   } catch (error) {
