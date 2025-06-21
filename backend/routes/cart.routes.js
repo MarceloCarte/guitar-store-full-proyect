@@ -1,13 +1,12 @@
 import { Router } from "express";
+import { verifyToken } from "../middleware/auth.middleware.js";
+import { checkout } from "../controllers/orders.controller.js";
 
 const cartRouter = Router()
 
-//Add product
-cartRouter.post('/cart', (req, res) => res.send('Add product'))
 
-//Get whole cart
-cartRouter.get('/cart', (req, res) => res.send('Get whole cart'))
+cartRouter.post('/checkout', verifyToken, checkout)
 
-//
+
 
 export default cartRouter

@@ -4,10 +4,9 @@ import { nanoid } from "nanoid";
 import { createUser, findUserByEmail } from "../models/user.model.js";
 import { validateEmail } from "../utils/userUtils.js";
 
-// {email: '', password: '', name: '', image: ''}
 
 export const signUp = async (req, res) => {
-  const { email, password, name, image: imageUrl } = req.body;
+  const { email, password, name, image: imageUrl, type} = req.body;
   const fileImage = req.file;
 
   if (!email.trim() || !password.trim()) {
@@ -45,7 +44,8 @@ export const signUp = async (req, res) => {
       email: cleanEmail,
       password: hashedPassword,
       name,
-      image: imagePath
+      image: imagePath,
+      type,
     };
     await createUser(newUser);
 
@@ -56,6 +56,7 @@ export const signUp = async (req, res) => {
         name: newUser.name,
         email: newUser.email,
         image: newUser.image,
+        type: newUser.type,
       },
     });
   } catch (error) {

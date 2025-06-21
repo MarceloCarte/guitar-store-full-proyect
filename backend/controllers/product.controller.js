@@ -1,7 +1,9 @@
 import {
   createProduct,
+  deleteProductById,
   findProductById,
   getAllProducts,
+  updateProduct,
 } from "../models/product.model.js";
 import { prepHateoas, validateProduct } from "../utils/productUtils.js";
 
@@ -33,7 +35,28 @@ export const getProduct = async (req, res) => {
   }
 };
 
-export const newProduct = async (req, res) => {
+export const deleteProduct = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const product = await getProductById(id);
+    const result = await deleteProductById(id);
+
+    if (product?.image_url?.startsWith("/uploads")) {
+      const imagePath = path.join(process.cwd(), "public", product.image_url);
+      fs.unlink(imagePath, (err) => {
+        if (err) console.warn("No se pudo eliminar la imagen:", err.message);
+      });
+    }
+
+    res.status(204).json({ message: "Producto eliminado con éxito.", result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error interno del servidor." });
+  }
+};
+
+export const editProduct = async (req, res) => {
   const data = {
     ...req.body,
     price_clp: Number(req.body.price_clp),
@@ -44,8 +67,45 @@ export const newProduct = async (req, res) => {
       ? req.body.image
       : null,
   };
+  const { id } = req.params;
+  const errors = validateProduct(data);
+  if (errors.length > 0) return res.status(400).json({ errors });
 
-    const errors = validateProduct(data);
+  try {
+    const product = await updateProduct(data, id);
+    return res.status(200).json({
+      message: "Producto editado con éxito.",
+      product: {
+        id: product.id,
+        name: product.name,
+        price_clp: product.price_clp,
+        stock: product.stock,
+        type: product.type,
+        condition: product.condition,
+        description: product.description,
+        image_url: product.image_url,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error al editar producto" });
+  }
+};
+
+export const newProduct = async (req, res) => {
+  const data = {
+    ...req.body,
+    user_id: req.user.id,
+    price_clp: Number(req.body.price_clp),
+    stock: Number(req.body.stock),
+    image_url: req.file
+      ? `/uploads/${req.file.filename}`
+      : req.body.image?.startsWith("http")
+      ? req.body.image
+      : null,
+  };
+
+  const errors = validateProduct(data);
   if (errors.length > 0) return res.status(400).json({ errors });
 
   try {
@@ -62,10 +122,11 @@ export const newProduct = async (req, res) => {
         condition: product.condition,
         description: product.description,
         image_url: product.image_url,
+        user_id: product.user_id,
       },
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Error al crear el producto.' });
+    return res.status(500).json({ message: "Error al crear el producto." });
   }
 };
