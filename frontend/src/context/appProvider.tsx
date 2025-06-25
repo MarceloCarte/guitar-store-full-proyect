@@ -7,6 +7,7 @@ import {
 } from "@/interfaces/interfaces";
 import { AppContext } from "./appContext";
 import { useState, useEffect } from "react";
+import AlertCart from "@/components/ui/AlertCart";
 
 export const AppProvider = ({ children }: AppProviderProps) => {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -21,7 +22,8 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         const res = await fetch("http://localhost:3000/store/products");
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
-        setProducts(data);
+        console.log(`Product Data: ${data.res}`);
+        setProducts(data.res);
       } catch (error) {
         console.error("Error fetching products:", error);
       }
@@ -30,6 +32,10 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   }, []);
 
   const addToCart = (product: Product) => {
+    if (!token) {
+      return (<AlertCart/>)
+    }
+
     setCart((prevCart) => {
       const existingItem = prevCart.find((item) => item.id === product.id);
       if (existingItem) {
@@ -64,7 +70,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         setUser(data.user);
         console.log("Usuario registrado con éxito.");
       } else {
-        console.error("Error al crear usuario.", data)
+        console.error("Error al crear usuario.", data);
       }
     } catch (error) {
       console.error(error);
@@ -85,12 +91,23 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         setToken(data.token);
         setUser(data.user);
         console.log("Usuario ingresado.");
+        localStorage.setItem("token", token);
       } else {
-        console.error("Error al ingresar.", data)
+        console.error("Error al ingresar.", data);
       }
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const logout = () => {
+    if (token) {
+      localStorage.removeItem("token");
+    }
+    setToken("");
+    setUser("");
+    setCart([]);
+    setTotal(0);
   };
 
   const contextValue: AppState = {
@@ -102,6 +119,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     signUp,
     login,
     addToCart,
+    logout,
   };
 
   return (

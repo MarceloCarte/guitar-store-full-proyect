@@ -12,14 +12,14 @@ const PORT = process.env.PORT;
 const app = e();
 
 app.use(e.json());
-app.use(cors());
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 app.use("/store", productRoutes);
 app.use("/store", userRouter);
 app.use("/store", authRouter);
 app.use("/store", cartRouter);
 
-app.use("/uploads", e.static(path.join(process.cwd(), "public/uploads")));
+app.use("/uploads", e.static(path.join(process.cwd(), "public", 'uploads')));
 
 app.listen(PORT, () =>
   console.log(`Server running on PORT http://localhost:${PORT}`)

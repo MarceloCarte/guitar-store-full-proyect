@@ -11,7 +11,7 @@ export interface Product {
 }
 
 export interface User {
-    id: string | number,
+    id?: string | number,
     name: string,
     email: string,
     password: string,
@@ -23,15 +23,19 @@ export interface CartItem extends Product {
     quantity: number;
 }
 
+export type NewUser = Omit< User, 'id' >
+
+
 export interface AppState {
     cart: CartItem[];
     total: number;
     products: Product[];
-    user: string;
+    user: User | null;
     token: string;
     addToCart: (product: Product) => void;
-    signUp: (user: User) => Promise<void>;
+    signUp: (user: NewUser) => Promise<void>;
     login: (email: string, password: string) => Promise<void>;
+    logout: () => void
 }
 
 

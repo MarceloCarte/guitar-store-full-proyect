@@ -1,12 +1,17 @@
-import Layout from "./components/Layout"
-import { AppProvider } from "./context/appProvider"
+import { BrowserRouter } from "react-router-dom";
+import { AppProvider } from "./context/appProvider";
+import AppRouter from "./routes/Routes";
 
 const App = () => {
   return (
-    <AppProvider>
-    <Layout/>
-    </AppProvider>
-  )
-}
- 
-export default App
+    <>
+      <BrowserRouter>
+        <AppProvider>
+          <AppRouter/>
+        </AppProvider>
+      </BrowserRouter>
+    </>
+  );
+};
+
+export default App;

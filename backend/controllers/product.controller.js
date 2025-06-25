@@ -7,6 +7,7 @@ import {
 } from "../models/product.model.js";
 import { prepHateoas, validateProduct } from "../utils/productUtils.js";
 
+
 export const getProducts = async (req, res) => {
   try {
     const productos = await getAllProducts();
@@ -39,7 +40,7 @@ export const deleteProduct = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const product = await getProductById(id);
+    const product = await findProductById(id);
     const result = await deleteProductById(id);
 
     if (product?.image_url?.startsWith("/uploads")) {
@@ -52,17 +53,20 @@ export const deleteProduct = async (req, res) => {
     res.status(204).json({ message: "Producto eliminado con éxito.", result });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error interno del servidor." });
+    res.status(500).json({ message: "Error interno del servidor.", error });
   }
 };
 
 export const editProduct = async (req, res) => {
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
+
   const data = {
     ...req.body,
+    user_id: req.user.id,
     price_clp: Number(req.body.price_clp),
     stock: Number(req.body.stock),
     image_url: req.file
-      ? `/uploads/${req.file.filename}`
+      ? `${baseUrl}/uploads/${req.file.filename}`
       : req.body.image?.startsWith("http")
       ? req.body.image
       : null,
@@ -93,13 +97,15 @@ export const editProduct = async (req, res) => {
 };
 
 export const newProduct = async (req, res) => {
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
+  
   const data = {
     ...req.body,
     user_id: req.user.id,
     price_clp: Number(req.body.price_clp),
     stock: Number(req.body.stock),
     image_url: req.file
-      ? `/uploads/${req.file.filename}`
+      ? `${baseUrl}/uploads/${req.file.filename}`
       : req.body.image?.startsWith("http")
       ? req.body.image
       : null,

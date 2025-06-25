@@ -1,88 +1,114 @@
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-
+import { useContext } from "react";
+import { AppContext } from "@/context/appContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Link } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { Menu } from "lucide-react";
+import { AppState } from "@/interfaces/interfaces";
 
 const Navbar = () => {
-  const token = true;
+  const { token, user, logout } = useContext(AppContext) as AppState;
 
   return (
-    <>
-      <nav className="block w-full max-w-screen-lg px-4 py-2 mx-auto text-white bg-gray-900 shadow-md rounded-md lg:px-8 lg:py-3 mt-10">
-        <div className="container flex flex-wrap items-center justify-between mx-auto text-gray-100">
-          <a
-            href="#"
-            className="mr-4 block cursor-pointer py-1.5 text-base text-gray-200 font-semibold"
-          >
-            NC Guitar Store
-          </a>
-          <div className="hidden lg:block">
-            <ul className="flex flex-col gap-2 mt-2 mb-4 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
-              <li className="flex items-center p-1 text-sm gap-x-2 text-gray-200">
-                <a href="/" className="flex items-center">
-                  Home
-                </a>
-              </li>
-              <li className="flex items-center p-1 text-sm gap-x-2 text-gray-200">
-                <a href="products" className="flex items-center">
-                  Products
-                </a>
-              </li>
+    <nav className="block w-full px-4 py-2 mx-auto max-w-7xl text-white bg-gray-900 shadow-md rounded-md lg:px-8 lg:py-3 mt-10">
+      <div className="container flex items-center justify-between mx-auto text-gray-100">
+        <Link to="/" className="text-base font-semibold text-gray-200">
+          NC Guitar Store
+        </Link>
 
-              <li className="flex items-center p-1 text-sm gap-x-2 text-gray-200">
-                <a href="checkout" className="flex items-center">
-                  Cart
-                </a>
+        <ul className="hidden lg:flex gap-6 items-center">
+          <li>
+            <Link to="/" className="text-sm text-gray-200">
+              Home
+            </Link>
+          </li>
+          <li>
+            <Link to="/products" className="text-sm text-gray-200">
+              Productos
+            </Link>
+          </li>
+
+          {token ? (
+            <div className="flex items-center gap-3 mx-auto">
+              <li>
+                <Link to="/checkout" className="text-sm text-gray-200">
+                  Carrito
+                </Link>
               </li>
+              <li>
+                <Link to={`/users/${user}`} className="text-sm text-gray-200">
+                  Usuario
+                </Link>
+              </li>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Avatar className="cursor-pointer">
+                    <AvatarImage src={user.image} />
+                    <AvatarFallback>NC</AvatarFallback>
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  <DropdownMenuItem asChild>
+                    <Link to={`/users/${user}`}>Perfil</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={logout}>
+                    <Link to={'/'}>Cerrar sesión</Link>
+                    
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ) : (
+            <li>
+              <Link to="/sign-in" className="text-sm text-gray-200">
+                Ingresar
+              </Link>
+            </li>
+          )}
+        </ul>
+
+        <div className="lg:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="p-1">
+                <Menu className="w-6 h-6" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem asChild>
+                <Link to="/">Home</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/products">Productos</Link>
+              </DropdownMenuItem>
 
               {token ? (
-                <div className="flex gap-3">
-                <li className="flex items-center p-1 text-sm gap-x-2 text-gray-200">
-                  <a href="user" className="flex items-center">
-                    User
-                  </a>
-                </li>
-                <li>
-                    <Avatar>
-                        <AvatarImage src="https://github.com/shadcn.png" />
-                        <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                </li>
-                </div>
+                <>
+                  <DropdownMenuItem asChild>
+                    <Link to="/checkout">Carrito</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to={`/users/${user}`}>Perfil</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={logout}>
+                    Cerrar sesión
+                  </DropdownMenuItem>
+                </>
               ) : (
-                <li className="flex items-center p-1 text-sm gap-x-2 text-gray-200">
-                  <a href="sign-in" className="flex items-center">
-                    Sign In
-                  </a>
-                </li>
+                <DropdownMenuItem asChild>
+                  <Link to="/sign-in">Ingresar</Link>
+                </DropdownMenuItem>
               )}
-
-              
-              
-            </ul>
-          </div>
-          <button
-            className="relative ml-auto h-6 max-h-[40px] w-6 max-w-[40px] select-none rounded-lg text-center align-middle text-xs font-medium uppercase text-inherit transition-all hover:bg-transparent focus:bg-transparent active:bg-transparent disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none lg:hidden"
-            type="button"
-          >
-            <span className="absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M4 6h16M4 12h16M4 18h16"
-                ></path>
-              </svg>
-            </span>
-          </button>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      </nav>
-    </>
+      </div>
+    </nav>
   );
 };
 

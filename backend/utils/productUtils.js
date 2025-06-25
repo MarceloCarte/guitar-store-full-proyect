@@ -27,23 +27,21 @@ export const validateProduct = (data) => {
   return errors;
 };
 
-export const clpFormater = (value) => {
-    return value.toLocaleString('es-CL')
-}
+
 
 export const prepHateoas = (productos) => {
-  const res = productos.map((p) => {
-    return {
-      name: p.name,
-      href: `/store/products/item/${p.id}`
-    }
-  }).slice(0, 4)
+  const res = productos.map((p) => ({
+    id: p.id,
+    name: p.name,
+    image: p.image_url,
+    price: p.price_clp,
+    href: `/store/products/item/${p.id}`
+  }));
 
-  const total = productos.length
-  const HATEOAS = {
+  const total = productos.length;
+
+  return {
     total,
     res
-  }
-
-  return HATEOAS
-}
+  };
+};
